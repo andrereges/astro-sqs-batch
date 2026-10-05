@@ -5,8 +5,25 @@ spring:
     aws:
       region:
         static: ${AWS_REGION:us-east-1}
+      credentials:
+        profile:
+          name: ${AWS_CREDINTIALS_PROFILE_NAME:astro-sqs}
+      sqs:
+        listener:
+          max-concurrent-messages: 5
+          max-messages-per-poll: 5
+          poll-timeout: 10s
+          max-delay-between-polls: 10s
+          max-inflight-messages-per-queue: 10
+          acknowledgement-mode: ON_SUCCESS
+          acknowledgement-interval: 1s
+          acknowledgement-threshold: 10
+          acknowledgement-order: PARALLEL
+          message-visibility: 60s
+          queue-not-found-strategy: FAIL
 
 app:
   messaging:
     sqs:
       sqsUrl: ${AWS_SQS_URL}
+      queue-name: ${AWS_SQS_QUEUE_NAME:PortalMassa}
