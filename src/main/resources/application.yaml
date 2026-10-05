@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: astro-sqs-batch
+  cloud:
+    aws:
+      region:
+        static: ${AWS_REGION:us-east-1}
+
+app:
+  messaging:
+    sqs:
+      sqsUrl: ${AWS_SQS_URL}
