@@ -1,6 +1,10 @@
+server:
+  port: 8080
+  content-path: astro-broker
+
 spring:
   application:
-    name: astro-sqs-batch
+    name: astro-broker
   cloud:
     aws:
       region:
@@ -23,7 +27,10 @@ spring:
           queue-not-found-strategy: FAIL
 
 app:
-  messaging:
+  publisher:
+    kafka:
+      url: ''
+      destination: ''
     sqs:
-      sqsUrl: ${AWS_SQS_URL}
-      queue-name: ${AWS_SQS_QUEUE_NAME:PortalMassa}
+      url: ${AWS_SQS_URL}
+      destination: ${AWS_SQS_QUEUE_NAME:bac-portal-massa-discovery}
