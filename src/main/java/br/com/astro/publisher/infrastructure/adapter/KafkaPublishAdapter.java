@@ -1,23 +1,25 @@
 package br.com.astro.publisher.infrastructure.adapter;
 
 import br.com.astro.publisher.application.port.out.PublishPort;
-import br.com.astro.publisher.domain.BrokerEnum;
-import br.com.astro.publisher.domain.PublishEnvelope;
-import org.springframework.beans.factory.annotation.Value;
+import br.com.astro.publisher.domain.entity.BrokerEnum;
+import br.com.astro.publisher.domain.entity.PublishEnvelope;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
 @Component
+@Slf4j
 public class KafkaPublishAdapter implements PublishPort {
 
+    private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${app.publisher.kafka.url}")
-    private String url;
-
     public KafkaPublishAdapter(
+            KafkaTemplate<String, String> kafkaTemplate,
             ObjectMapper objectMapper
     ) {
+        this.kafkaTemplate = kafkaTemplate;
         this.objectMapper = objectMapper;
     }
 
@@ -27,19 +29,31 @@ public class KafkaPublishAdapter implements PublishPort {
     }
 
     @Override
-    public <T> void publish(
+    public PublishEnvelope publish(
             String destination,
-            T payload
+            Object content
     ) {
         try {
-            PublishEnvelope<T> envelope = PublishEnvelope.of(broker(), destination, payload);
-            final String body = objectMapper.writeValueAsString(envelope);
+            PublishEnvelope envelope =
+                    PublishEnvelope.of(content);
 
-            // TODO
-        } catch (Exception e) {
+            String body =
+                    objectMapper.writeValueAsString(envelope);
+
+            kafkaTemplate
+                .send(destination, body)
+                .whenComplete((result, exception) -> {
+                    if (exception != null) {
+                        log.error(exception.getMessage(), exception);
+                    }
+                });
+
+            return envelope;
+        } catch (Exception exception) {
+            log.error(exception.getMessage(), exception);
             throw new IllegalStateException(
-                    "Erro ao publicar mensagem na AWS SQS",
-                    e
+                    "Erro ao publicar mensagem no KAFKA",
+                    exception
             );
         }
     }

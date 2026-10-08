@@ -3,7 +3,8 @@ package br.com.astro.publisher.application.service;
 import br.com.astro.publisher.application.port.in.PublishUseCase;
 import br.com.astro.publisher.application.port.out.PublishPort;
 import br.com.astro.publisher.application.registry.PublishRegistry;
-import br.com.astro.publisher.domain.BrokerEnum;
+import br.com.astro.publisher.domain.entity.BrokerEnum;
+import br.com.astro.publisher.domain.entity.PublishEnvelope;
 
 public class PublishService implements PublishUseCase {
 
@@ -14,14 +15,14 @@ public class PublishService implements PublishUseCase {
     }
 
     @Override
-    public void execute(
+    public PublishEnvelope execute(
             BrokerEnum broker,
             String destination,
-            Object message
+            Object content
     ) {
         PublishPort publisher =
-                registry.get(broker);
+                registry.getBroker(broker);
 
-        publisher.publish(destination, message);
+        return publisher.publish(destination, content);
     }
 }

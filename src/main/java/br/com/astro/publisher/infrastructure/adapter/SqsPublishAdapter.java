@@ -1,8 +1,9 @@
 package br.com.astro.publisher.infrastructure.adapter;
 
 import br.com.astro.publisher.application.port.out.PublishPort;
-import br.com.astro.publisher.domain.BrokerEnum;
-import br.com.astro.publisher.domain.PublishEnvelope;
+import br.com.astro.publisher.domain.entity.BrokerEnum;
+import br.com.astro.publisher.domain.entity.PublishEnvelope;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
@@ -10,12 +11,13 @@ import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 import tools.jackson.databind.ObjectMapper;
 
 @Component
+@Slf4j
 public class SqsPublishAdapter implements PublishPort {
 
     private final SqsAsyncClient sqsAsyncClient;
     private final ObjectMapper objectMapper;
 
-    @Value("${app.publisher.sqs.url}")
+    @Value("${app.producer.broker.sqs.url}")
     private String url;
 
     public SqsPublishAdapter(
@@ -31,12 +33,12 @@ public class SqsPublishAdapter implements PublishPort {
     }
 
     @Override
-    public <T> void publish(
+    public PublishEnvelope publish(
             String destination,
-            T payload
+            Object content
     ) {
         try {
-            PublishEnvelope<T> envelope = PublishEnvelope.of(broker(), destination, payload);
+            PublishEnvelope envelope = PublishEnvelope.of(content);
             final String body = objectMapper.writeValueAsString(envelope);
 
             var request = SendMessageRequest.builder()
@@ -45,7 +47,10 @@ public class SqsPublishAdapter implements PublishPort {
                     .build();
 
             sqsAsyncClient.sendMessage(request).join();
+
+            return envelope;
         } catch (Exception exception) {
+            log.error(exception.getMessage(), exception);
             throw new IllegalStateException(
                     "Erro ao publicar mensagem na AWS SQS",
                     exception

@@ -1,5 +1,6 @@
 package br.com.astro.publisher.infrastructure.rest.handler;
 
+import br.com.astro.publisher.domain.exception.BrokerNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,13 +12,28 @@ import java.time.Instant;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(BrokerNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleBrokerNotFoundException(
+            Exception exception
+    ) {
+        var response = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Broker not found",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
     @ExceptionHandler({
             QueueDoesNotExistException.class
     })
     public ResponseEntity<ErrorResponse> handleDestinationDoesNotExist(
             Exception exception
     ) {
-
         var response = new ErrorResponse(
                 Instant.now(),
                 HttpStatus.BAD_REQUEST.value(),

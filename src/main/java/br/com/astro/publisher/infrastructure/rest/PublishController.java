@@ -1,10 +1,10 @@
 package br.com.astro.publisher.infrastructure.rest;
 
-import br.com.astro.publisher.infrastructure.rest.dto.PublishRequest;
-import br.com.astro.publisher.infrastructure.rest.dto.PublishResponse;
+import br.com.astro.publisher.domain.entity.PublishEnvelope;
 import org.springframework.http.ResponseEntity;
 
 public interface PublishController {
 
-    ResponseEntity<PublishResponse> publish(PublishRequest request);
+    ResponseEntity<PublishEnvelope> publish(
+            String broker, String destination, Object content);
 }

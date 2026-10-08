@@ -1,20 +1,14 @@
 package br.com.astro.publisher.infrastructure.rest.impl;
 
 import br.com.astro.publisher.application.port.in.PublishUseCase;
-import br.com.astro.publisher.domain.BrokerEnum;
+import br.com.astro.publisher.domain.entity.BrokerEnum;
+import br.com.astro.publisher.domain.entity.PublishEnvelope;
 import br.com.astro.publisher.infrastructure.rest.PublishController;
-import br.com.astro.publisher.infrastructure.rest.dto.PublishRequest;
-import br.com.astro.publisher.infrastructure.rest.dto.PublishResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.UUID;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/publish")
@@ -28,13 +22,15 @@ public class PublishControllerImpl implements PublishController {
         produces = MediaType.APPLICATION_JSON_VALUE,
         consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<PublishResponse> publish(
-            @RequestBody PublishRequest request
+    public ResponseEntity<PublishEnvelope> publish(
+            @RequestHeader(name = "x-broker") String broker,
+            @RequestHeader(name = "x-destination") String destination,
+            @RequestBody Object content
     ) {
 
-        publishUseCase.execute(BrokerEnum.valueOf(request.broker()), request.destination(), request.payload());
+        PublishEnvelope envelope = publishUseCase.execute(BrokerEnum.from(broker), destination, content);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new PublishResponse(UUID.randomUUID().toString()));
+                .body(envelope);
     }
 }

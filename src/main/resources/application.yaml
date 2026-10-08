@@ -12,25 +12,25 @@ spring:
       credentials:
         profile:
           name: ${AWS_CREDINTIALS_PROFILE_NAME:astro-sqs}
-      sqs:
-        listener:
-          max-concurrent-messages: 5
-          max-messages-per-poll: 5
-          poll-timeout: 10s
-          max-delay-between-polls: 10s
-          max-inflight-messages-per-queue: 10
-          acknowledgement-mode: ON_SUCCESS
-          acknowledgement-interval: 1s
-          acknowledgement-threshold: 10
-          acknowledgement-order: PARALLEL
-          message-visibility: 60s
-          queue-not-found-strategy: FAIL
 
 app:
-  publisher:
-    kafka:
-      url: ''
-      destination: ''
-    sqs:
-      url: ${AWS_SQS_URL}
-      destination: ${AWS_SQS_QUEUE_NAME:bac-portal-massa-discovery}
+  consumer:
+    broker:
+      rabbitmq:
+        url: ${RABBITMQ_URL:amqps://guest:guest@localhost:5672/exchange}
+        destination: ${BROKER_DESTINATION:csg-ws-bac-portal-massa-discovery}
+      kafka:
+        url: ${KAFKA_URL:localhost:9092}
+        destination: ${BROKER_DESTINATION:csg-ws-bac-portal-massa-discovery}
+        group-id: ${KAFKA_GROUP_ID:astro-consumer}
+      sqs:
+        url: ${AWS_SQS_URL}
+        destination: ${BROKER_DESTINATION:csg-ws-bac-portal-massa-discovery}
+  producer:
+    broker:
+      rabbitmq:
+        url: ${RABBITMQ_URL:amqps://guest:guest@localhost:5672/exchange}
+      kafka:
+        url: ${KAFKA_URL:localhost:9092}
+      sqs:
+        url: ${AWS_SQS_URL:fake}

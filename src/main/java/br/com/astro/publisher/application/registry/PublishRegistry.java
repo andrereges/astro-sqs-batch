@@ -1,7 +1,8 @@
 package br.com.astro.publisher.application.registry;
 
 import br.com.astro.publisher.application.port.out.PublishPort;
-import br.com.astro.publisher.domain.BrokerEnum;
+import br.com.astro.publisher.domain.entity.BrokerEnum;
+import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
+@Getter
 public class PublishRegistry {
 
     private final Map<String, PublishPort> publishers;
@@ -24,7 +26,7 @@ public class PublishRegistry {
                 ));
     }
 
-    public PublishPort get(BrokerEnum broker) {
+    public PublishPort getBroker(BrokerEnum broker) {
         var publisher = publishers.get(broker.name().toUpperCase());
 
         if (publisher == null) {
@@ -34,9 +36,5 @@ public class PublishRegistry {
         }
 
         return publisher;
-    }
-
-    public Map<String, PublishPort> getPublishers() {
-        return publishers;
     }
 }

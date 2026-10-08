@@ -1,4 +1,4 @@
-package br.com.astro.publisher.config;
+package br.com.astro.publisher.infrastructure.config;
 
 import br.com.astro.publisher.application.port.in.PublishUseCase;
 import br.com.astro.publisher.application.port.out.PublishPort;
