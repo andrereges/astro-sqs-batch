@@ -7,11 +7,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class AwsSqsPublishConfig {
+public class SqsPublishConfig {
 
     private final String region;
 
-    public AwsSqsPublishConfig(
+    public SqsPublishConfig(
             @Value("${spring.cloud.aws.region.static}") String region
     ) {
         this.region = region;

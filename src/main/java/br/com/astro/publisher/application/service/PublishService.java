@@ -23,6 +23,12 @@ public class PublishService implements PublishUseCase {
         PublishPort publisher =
                 registry.getBroker(broker);
 
+        publisher.publishValidator().validate(
+                broker,
+                destination,
+                content
+        );
+
         return publisher.publish(destination, content);
     }
 }

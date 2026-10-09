@@ -3,27 +3,30 @@ package br.com.astro.publisher.infrastructure.adapter;
 import br.com.astro.publisher.application.port.out.PublishPort;
 import br.com.astro.publisher.domain.entity.BrokerEnum;
 import br.com.astro.publisher.domain.entity.PublishEnvelope;
+import br.com.astro.publisher.domain.exception.BrokerException;
+import br.com.astro.publisher.domain.validator.PublishValidator;
+import br.com.astro.publisher.infrastructure.adapter.validator.RabbitMQDestinationValidatorAdapter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
 
 @Component
+@RequiredArgsConstructor
+@Slf4j
 public class RabbitMQPublishAdapter implements PublishPort {
 
-    private final ObjectMapper objectMapper;
     private final RabbitTemplate rabbitTemplate;
-
-    public RabbitMQPublishAdapter(
-            ObjectMapper objectMapper,
-            RabbitTemplate rabbitTemplate
-    ) {
-        this.objectMapper = objectMapper;
-        this.rabbitTemplate = rabbitTemplate;
-    }
+    private final RabbitMQDestinationValidatorAdapter rabbitMQDestinationValidator;
 
     @Override
     public BrokerEnum broker() {
         return BrokerEnum.RABBITMQ;
+    }
+
+    @Override
+    public PublishValidator publishValidator() {
+        return rabbitMQDestinationValidator;
     }
 
     @Override
@@ -45,7 +48,7 @@ public class RabbitMQPublishAdapter implements PublishPort {
 
             return envelope;
         } catch (Exception exception) {
-            throw new IllegalStateException(
+            throw new BrokerException(
                     "Erro ao publicar mensagem no RabbitMQ",
                     exception
             );
