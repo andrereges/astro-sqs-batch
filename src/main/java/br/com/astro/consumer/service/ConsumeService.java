@@ -2,5 +2,6 @@ package br.com.astro.consumer.service;
 
 public interface ConsumeService {
 
-    void consume(String content);
+    void consumeDiscovery(String content);
+    void consumePurge(String content);
 }

@@ -2,6 +2,7 @@ package br.com.astro.publisher.application.registry;
 
 import br.com.astro.publisher.application.port.out.PublishPort;
 import br.com.astro.publisher.domain.entity.BrokerEnum;
+import br.com.astro.publisher.domain.exception.BrokerException;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +31,7 @@ public class PublishRegistry {
         var publisher = publishers.get(broker.name().toUpperCase());
 
         if (publisher == null) {
-            throw new IllegalArgumentException(
+            throw new BrokerException(
                     "Broker não suportado: " + broker
             );
         }

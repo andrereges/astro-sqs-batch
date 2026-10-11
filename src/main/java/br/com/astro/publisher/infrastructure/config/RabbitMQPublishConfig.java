@@ -3,20 +3,27 @@ package br.com.astro.publisher.infrastructure.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Slf4j
+@ConditionalOnProperty(
+        prefix = "app.publisher.broker.rabbitmq",
+        name = "enabled",
+        havingValue = "true"
+)
 public class RabbitMQPublishConfig {
 
     private final String url;
 
     public RabbitMQPublishConfig(
-            @Value("${app.producer.broker.rabbitmq.url}") String url
+            @Value("${app.publisher.broker.rabbitmq.url}") String url
     ) {
         this.url = url;
     }
@@ -53,5 +60,10 @@ public class RabbitMQPublishConfig {
         rabbitTemplate.setMessageConverter(messageConverter);
 
         return rabbitTemplate;
+    }
+
+    @Bean
+    public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
+        return new RabbitAdmin(connectionFactory);
     }
 }

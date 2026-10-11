@@ -1,8 +1,10 @@
 package br.com.astro.publisher.infrastructure.config;
 
+import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -13,9 +15,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@ConditionalOnProperty(
+        prefix = "app.publisher.broker.kafka",
+        name = "enabled",
+        havingValue = "true"
+)
 public class KafkaPublishConfig {
 
-    @Value("${app.producer.broker.kafka.url}")
+    @Value("${app.publisher.broker.kafka.url}")
     private String url;
 
     @Bean
@@ -46,5 +53,15 @@ public class KafkaPublishConfig {
             ProducerFactory<String, String> producerFactory
     ) {
         return new KafkaTemplate<>(producerFactory);
+    }
+
+    @Bean(destroyMethod = "close")
+    public AdminClient adminClient(
+            @Value("${app.publisher.broker.kafka.url}") String bootstrapServers) {
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("bootstrap.servers", bootstrapServers);
+
+        return AdminClient.create(properties);
     }
 }

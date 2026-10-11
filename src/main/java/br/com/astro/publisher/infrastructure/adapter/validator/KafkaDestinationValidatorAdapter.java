@@ -12,11 +12,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnProperty(
+        prefix = "app.publisher.broker.kafka",
+        name = "enabled",
+        havingValue = "true"
+)
 public class KafkaDestinationValidatorAdapter implements PublishValidator {
 
     private final AdminClient adminClient;
@@ -25,7 +31,12 @@ public class KafkaDestinationValidatorAdapter implements PublishValidator {
     public void validate(BrokerEnum broker,
                          String destination,
                          Object content) {
+        this.isEnabled(broker);
         this.validateDestination(destination);
+    }
+
+    private void isEnabled(BrokerEnum broker) {
+
     }
 
     private void validateDestination(String destination) {

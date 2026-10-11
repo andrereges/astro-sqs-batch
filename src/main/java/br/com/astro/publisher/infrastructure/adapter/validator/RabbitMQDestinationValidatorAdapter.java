@@ -6,11 +6,17 @@ import br.com.astro.publisher.domain.validator.PublishValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnProperty(
+        prefix = "app.publisher.broker.rabbitmq",
+        name = "enabled",
+        havingValue = "true"
+)
 public class RabbitMQDestinationValidatorAdapter implements PublishValidator {
 
     private final RabbitAdmin rabbitAdmin;

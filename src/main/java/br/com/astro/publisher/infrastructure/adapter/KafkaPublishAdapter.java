@@ -8,6 +8,7 @@ import br.com.astro.publisher.domain.validator.PublishValidator;
 import br.com.astro.publisher.infrastructure.adapter.validator.KafkaDestinationValidatorAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
@@ -15,6 +16,11 @@ import tools.jackson.databind.ObjectMapper;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnProperty(
+        prefix = "app.publisher.broker.kafka",
+        name = "enabled",
+        havingValue = "true"
+)
 public class KafkaPublishAdapter implements PublishPort {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
@@ -50,6 +56,8 @@ public class KafkaPublishAdapter implements PublishPort {
                         log.error(exception.getMessage(), exception);
                     }
                 });
+
+            log.info("Publish envelope in RABBITMQ: {}", envelope);
 
             return envelope;
         } catch (Exception exception) {

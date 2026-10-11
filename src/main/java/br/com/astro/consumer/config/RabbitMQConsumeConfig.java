@@ -4,10 +4,16 @@ import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@ConditionalOnProperty(
+        prefix = "app.consumer.broker.rabbitmq",
+        name = "enabled",
+        havingValue = "true"
+)
 public class RabbitMQConsumeConfig {
 
     private final String url;
@@ -19,9 +25,8 @@ public class RabbitMQConsumeConfig {
         this.url = url;
     }
 
-//    @Bean
+    @Bean
     public ConnectionFactory rabbitConnectionFactory() {
-
         var factory =
                 new com.rabbitmq.client.ConnectionFactory();
 
@@ -42,7 +47,6 @@ public class RabbitMQConsumeConfig {
     rabbitListenerContainerFactory(
             ConnectionFactory connectionFactory
     ) {
-
         var factory =
                 new SimpleRabbitListenerContainerFactory();
 

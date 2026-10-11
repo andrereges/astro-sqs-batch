@@ -10,6 +10,7 @@ import br.com.astro.publisher.infrastructure.adapter.validator.SqsDestinationVal
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.model.QueueDoesNotExistException;
@@ -21,13 +22,18 @@ import java.util.concurrent.CompletionException;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnProperty(
+        prefix = "app.publisher.broker.sqs",
+        name = "enabled",
+        havingValue = "true"
+)
 public class SqsPublishAdapter implements PublishPort {
 
     private final SqsAsyncClient sqsAsyncClient;
     private final ObjectMapper objectMapper;
     private final SqsDestinationValidatorAdapter sqsDestinationValidatorAdapter;
 
-    @Value("${app.producer.broker.sqs.url}")
+    @Value("${app.publisher.broker.sqs.url}")
     private String url;
 
     @Override
@@ -55,6 +61,8 @@ public class SqsPublishAdapter implements PublishPort {
                     .build();
 
             sqsAsyncClient.sendMessage(request).join();
+
+            log.info("Publish envelope in RABBITMQ: {}", envelope);
 
             return envelope;
         } catch (CompletionException exception) {

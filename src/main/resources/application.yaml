@@ -5,6 +5,8 @@ server:
 spring:
   application:
     name: astro-broker
+  main:
+    allow-bean-definition-overriding: true
   cloud:
     aws:
       region:
@@ -14,23 +16,43 @@ spring:
           name: ${AWS_CREDINTIALS_PROFILE_NAME:astro-sqs}
 
 app:
+  batch:
+    services:
+      discovery:
+        baseUrl: http://localhost:8080
+        endpoint: /api/v1/discovery-batch/start
+      purge:
+        baseUrl: http://localhost:8080
+        endpoint: /api/v1/purge-batch/start
   consumer:
     broker:
       rabbitmq:
         url: ${RABBITMQ_URL:amqps://guest:guest@localhost:5672/exchange}
-        destination: ${BROKER_DESTINATION:csg-ws-bac-portal-massa-discovery}
+        enabled: ${PUBLISHER_RABBITMQ_ENABLED:true}
+        destination:
+          discovery: ${BROKER_DESTINATION_DISCOVERY:csg-ws-bac-portal-massa-discovery}
+          purge: ${BROKER_DESTINATION_PURGE:csg-ws-bac-portal-massa-purge}
       kafka:
         url: ${KAFKA_URL:localhost:9092}
-        destination: ${BROKER_DESTINATION:csg-ws-bac-portal-massa-discovery}
-        group-id: ${KAFKA_GROUP_ID:astro-consumer}
+        enabled: ${PUBLISHER_KAFKA_ENABLED:false}
+        destination:
+          discovery: ${BROKER_DESTINATION_DISCOVERY:csg-ws-bac-portal-massa-discovery}
+          purge: ${BROKER_DESTINATION_PURGE:csg-ws-bac-portal-massa-purge}
+        groupId: ${KAFKA_GROUP_ID:astro-consumer}
       sqs:
-        url: ${AWS_SQS_URL}
-        destination: ${BROKER_DESTINATION:csg-ws-bac-portal-massa-discovery}
-  producer:
+        url: ${AWS_SQS_URL:http://localhost:4566}
+        enabled: ${PUBLISHER_SQS_ENABLED:false}
+        destination:
+          discovery: ${BROKER_DESTINATION_DISCOVERY:csg-ws-bac-portal-massa-discovery}
+          purge: ${BROKER_DESTINATION_PURGE:csg-ws-bac-portal-massa-purge}
+  publisher:
     broker:
       rabbitmq:
         url: ${RABBITMQ_URL:amqps://guest:guest@localhost:5672/exchange}
+        enabled: ${PUBLISHER_RABBITMQ_ENABLED:true}
       kafka:
         url: ${KAFKA_URL:localhost:9092}
+        enabled: ${PUBLISHER_KAFKA_ENABLED:false}
       sqs:
-        url: ${AWS_SQS_URL:fake}
+        url: ${AWS_SQS_URL:http://localhost:4566}
+        enabled: ${PUBLISHER_SQS_ENABLED:false}

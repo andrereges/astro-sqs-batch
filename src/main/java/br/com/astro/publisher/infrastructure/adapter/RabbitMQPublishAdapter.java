@@ -9,11 +9,17 @@ import br.com.astro.publisher.infrastructure.adapter.validator.RabbitMQDestinati
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnProperty(
+        prefix = "app.publisher.broker.rabbitmq",
+        name = "enabled",
+        havingValue = "true"
+)
 public class RabbitMQPublishAdapter implements PublishPort {
 
     private final RabbitTemplate rabbitTemplate;
@@ -45,6 +51,8 @@ public class RabbitMQPublishAdapter implements PublishPort {
                     destination,
                     envelope
             );
+
+            log.info("Publish envelope in RABBITMQ: {}", envelope);
 
             return envelope;
         } catch (Exception exception) {
