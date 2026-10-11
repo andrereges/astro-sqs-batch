@@ -14,10 +14,23 @@ import java.time.Instant;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({
-            BrokerException.class,
-            BrokerNotFoundException.class
-    })
+    @ExceptionHandler(BrokerNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleBrokerNotFoundException(
+            Exception exception
+    ) {
+        var response = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Broker not found",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
+    @ExceptionHandler(BrokerException.class)
     public ResponseEntity<ErrorResponse> handleBrokerException(
             Exception exception
     ) {
